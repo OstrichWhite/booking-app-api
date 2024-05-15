@@ -1,5 +1,7 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const mongoose = require("mongoose");
 const { PORT = 3000 } = process.env;
 
 const app = express();
@@ -11,7 +13,9 @@ app.use(
   })
 );
 app.use(express.json());
-
+mongoose
+  .connect(process.env.MONGO_URL)
+  .then(() => console.log("DB connected."));
 app.get("/info", (req, res) => {
   res.json({ message: "success" });
 });

@@ -25,7 +25,7 @@ const verify = ({ req, res, user }) => {
   const passOk = bcrypt.compareSync(req.body.password, user.password);
   if (passOk) {
     jwt.sign({ id: user._id }, JWT_SECRET, {}, (err, token) => {
-      res.cookie("token", token).json({ message: "Login success." });
+      res.cookie("token", token).json({ message: "Login success.", user });
     });
   } else {
     res.status(422).json({ message: "Email or password is wrong." });

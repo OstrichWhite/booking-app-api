@@ -17,8 +17,6 @@ app.use(
 
 app.use(express.json());
 
-mongoose.connect(MONGO_URL).then(() => console.log("DB connected."));
-
 app.get("/info", (req, res) => {
   res.json({ message: "success" });
 });
@@ -26,7 +24,7 @@ app.get("/info", (req, res) => {
 app.post("/register", async (req, res) => {
   try {
     const { name, email } = req.body;
-    const password = bcrypt.hashSync(password, PASSWORD_SALT);
+    const password = bcrypt.hashSync(req.body.password);
     const createdUser = await User.create({ name, email, password });
     res.json(createdUser);
   } catch (e) {
@@ -34,4 +32,13 @@ app.post("/register", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log("server listen on port " + PORT));
+(async () => {
+  try {
+    await mongoose.connect(MONGO_URL);
+    console.log("DB connected.");
+  } catch (error) {
+    console.log("DB connection failed.");
+    console.error(error);
+  }
+  app.listen(PORT, () => console.log("server listen on port " + PORT));
+})();

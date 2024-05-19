@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const User = require("./models/User");
 const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
 const { PORT = 3000, JWT_SECRET, MONGO_URL } = process.env;
 
 const app = express();
@@ -17,6 +18,7 @@ app.use(
 );
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.get("/info", (req, res) => {
   res.json({ message: "success" });
@@ -48,7 +50,20 @@ app.post("/register", async (req, res) => {
   }
 });
 
-(async () => {
+app.get("/profile", (req, res) => {
+  const { token } = req.cookies;
+  if (token) {
+    jwt.verify(token, JWT_SECRET, {}, async (err, user) => {
+      if (err) throw err;
+      const userData = await User.findById(user.id);
+      res.json({ user: userData });
+    });
+  } else {
+    res.json(null);
+  }
+});
+
+const main = async () => {
   try {
     await mongoose.connect(MONGO_URL);
     console.log("DB connected.");
@@ -57,4 +72,6 @@ app.post("/register", async (req, res) => {
     console.error(error);
   }
   app.listen(PORT, () => console.log("server listen on port " + PORT));
-})();
+};
+
+main();

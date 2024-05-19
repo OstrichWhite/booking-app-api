@@ -63,6 +63,10 @@ app.get("/profile", (req, res) => {
   }
 });
 
+app.post("/logout", (req, res) => {
+  res.cookie("token", "").json(true);
+});
+
 const main = async () => {
   try {
     await mongoose.connect(MONGO_URL);
